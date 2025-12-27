@@ -244,7 +244,7 @@ Screenshots of the application UI are included in the repository to help develop
 
 > 📸 See the `/screenshots` directory in the repository.
 
-<img src="Screenshot_20251227_151807_Gallery.jpg" alt="Sample Image 1" />
+<img src="Screenshot_20251227_151807_Gallery.jpg" alt="Sample Image 1" height="800px" width="600px" />
 <img src="Screenshot_20251227_151820_Gallery.jpg" alt="Sample Image 2" />
 <img src="Screenshot_20251227_151827_Gallery.jpg" alt="Sample Image 3" />
 <img src="Screenshot_20251227_151836_Gallery.jpg" alt="Sample Image 4" />
