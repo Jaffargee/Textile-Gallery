@@ -251,7 +251,7 @@ Screenshots of the application UI are included in the repository to help develop
 <img src="Screenshot_20251227_151840_Gallery.jpg" alt="Sample Image 5" />
 <img src="Screenshot_20251227_151844_Gallery.jpg" alt="Sample Image 6" />
 <img src="Screenshot_20251227_151916_Gallery.jpg" alt="Sample Image 7" />
-<img src="Screenshot_20251227_151923_Android Systems.jpg" alt="Sample Image 8" />
+<img src="Screenshot_20251227_151923_Android System.jpg" alt="Sample Image 8" />
 ---
 
 ## Suggested Improvements
