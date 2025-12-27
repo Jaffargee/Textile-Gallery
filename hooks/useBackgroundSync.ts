@@ -1,18 +1,18 @@
-// import DownloadManager from '@/utils/dowloadManager';
+import DownloadManager from '@/utils/dowloadManager';
 import { ImageDirProps, ImageItem } from '@/types';
 import { useCallback, useEffect, useState } from 'react';
-// import { imageService } from '@/utils/image-service';
+import { imageService } from '@/utils/image-service';
 import { FileManager } from '@/utils/file-manager';
 import { usePathname } from 'expo-router';
 
 
 export default function useBackgroundSync(folder?: string) {
-      // const [cloudDirectories, setCloudDirectories] = useState<ImageDirProps[]>([]);
+      const [cloudDirectories, setCloudDirectories] = useState<ImageDirProps[]>([]);
       // const [localImages, setLocalImages] = useState<(ImageItem | null)[]>([]);
       const [localAlbumImages, setLocalAlbumImages] = useState<(ImageDirProps | null)[]>([]);
       const [loading, setLoading] = useState<boolean>(true);
 
-      // const downloadManager = DownloadManager.getInstance();
+      const downloadManager = DownloadManager.getInstance();
       const fileManager = FileManager.getInstance()
       const pathName = usePathname()
 
@@ -98,10 +98,6 @@ export default function useBackgroundSync(folder?: string) {
 
                   return imagePromises
 
-                  // const constructedImages = (await Promise.all(imagePromises)).filter(i => i !== null);
-                  // setLocalImages(constructedImages);
-                  // console.log(`--- Finished Local Image Sync (${constructedImages.length} images) ---`);
-
             } catch (error) {
                   console.error('Loading local images failed:', error);
             } finally {
@@ -110,12 +106,57 @@ export default function useBackgroundSync(folder?: string) {
 
       }, [fileManager]);
 
-      useEffect(() => {
-            if(pathName === '/'){
-                  backgroundFolderSync();
+      async function fetchDirs() {
+            const startTime = performance.now();
+            try{
+                  const dirs = await imageService.fetchImageDirectories('gallery', { limit: 150 });
+                  setCloudDirectories(dirs);
+                  await fileManager.createDirectories(dirs as ImageDirProps[])
+                  const endTime = performance.now();
+                  console.log(`✅ Loaded ${dirs.length} directories in ${(endTime - startTime).toFixed(0)}ms`);
+            } catch (error) {
+                  console.error('Failed to fetch directories:', error);
             }
+      }
 
-      }, [backgroundFolderSync])
+      async function fetchAndDownloadImages(folder: string) {
+            const startTime = performance.now();
+            console.log(`Fetching and downloading images from folder: ${folder}`)
+            try{
+                  const imgs = await imageService.fetchImages('gallery', { folder, limit: 150 });
+
+                  const imgsItem2ImageItem = imgs as ImageItem[]
+
+                  await  downloadManager.downloadFiles(imgsItem2ImageItem, folder)
+                  console.log('Total Number of Images', imgsItem2ImageItem.length)
+
+                  const endTime = performance.now();
+                  console.log(`✅ Downloaded ${imgs.length} Images in ${(endTime - startTime).toFixed(0)}ms from cloud image directory ${folder}`);
+            } catch (error) {
+                  console.error('Failed to fetch directories:', error);
+            }
+      }
+
+      async function downloadFiles() {
+            if(cloudDirectories && cloudDirectories?.length > 0){
+                  await Promise.all(cloudDirectories.map(async (folder) => {
+                        await fetchAndDownloadImages(folder.name as string);
+                  }));
+            }
+      }
+
+      // useEffect(() => {
+      //       async function functions() {
+      //             if(pathName === '/'){
+      //                   await backgroundFolderSync();
+      //                   await fetchDirs();
+      //                   // await downloadFiles();
+      //             }
+      //       }
+
+      //       functions()
+
+      // }, [backgroundFolderSync])
 
       
       return { loading, localAlbumImages, backgroundFileSync }

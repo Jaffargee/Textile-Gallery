@@ -3,13 +3,13 @@ import React, { useState } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 // import { Ionicons } from '@expo/vector-icons';
 // import { useRouter } from 'expo-router';
-import type { ImageCardThumbnailProps } from '@/Backup/hooks/types';
+import type { ImageThumbProps } from '@/types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const GAP = 1;
 const ITEM_WIDTH = (SCREEN_WIDTH - (GAP * 4)) / 3;
 
-const ImageCardThumbnail = React.memo(function ImageCardThumbnailComponent({item, style, onView}: ImageCardThumbnailProps){
+const ImageCardThumbnail = React.memo(function ImageCardThumbnailComponent({ item, style, onView }: ImageThumbProps){
 
       // const router = useRouter()
       const [imageError, setImageError] = useState(false);
@@ -27,7 +27,7 @@ const ImageCardThumbnail = React.memo(function ImageCardThumbnailComponent({item
                   <Pressable onPress={onView} className='flex-1 overflow-hidden'>
                         <View className='flex-1 overflow-hidden'>
                               <ExpoImage
-                                    source={{uri: item?.source?.thumbnailUrl ?? item?.source?.uri }}
+                                    source={{ uri: item?.source?.cloud_uri }}
                                     style={{height: ITEM_WIDTH, width: '100%'}}
                                     contentFit='cover'
                                     cachePolicy={'memory-disk'}

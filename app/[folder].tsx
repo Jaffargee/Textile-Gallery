@@ -1,84 +1,177 @@
+// app/[folder].tsx
 import { AnimatedFlatList } from '@/Backup/components/animated-components';
 import ImageCardThumbnail from '@/components/ImageCardThumbnail';
-import { HEADER_MAX_HEIGHT } from '@/Backup/hooks/image-dimensions';
-import { usePathname } from 'expo-router';
-import { ActivityIndicator, View, StyleSheet, Button } from 'react-native';
-import useBackgroundSync from '@/hooks/useBackgroundSync';
-import { useEffect, useState } from 'react';
-import { ImageItem } from '@/types';
+import { useLocalSearchParams } from 'expo-router';
+import { ActivityIndicator, View, StyleSheet } from 'react-native';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { ImageProps, SharingProgressProps} from '@/types';
 import StickHeroNav from '@/components/StickHeroNav';
 import useAnimatedStyleHook from '@/hooks/useAnimatedStyles';
-import { shareMultipleImages } from '@/Backup/hooks/useSharing';
+import { useImageSync } from '@/hooks/image-sync-context';
+import Helpers from '@/utils/helpers';
+import useSelectionModeBackHandler from '@/hooks/use-selection-backhandler';
+import useSharing from '@/hooks/useSharing';
+import { TGMediaRepository } from '@/lib/file-manager';
+import PrepareSharing from '@/components/PrepareSharing';
+import { HEADER_MAX_HEIGHT } from '@/utils/image-dimensions';
+import { Galeria } from '@nandorojo/galeria';
+
+
 
 export default function Index() {
+      const [images, setImages] = useState<ImageProps[]>([]);
+      const [loading, setLoading] = useState<boolean>(false);
+      const [selected, setSelected] = useState<string[]>([]);
+      const [selectionMode, setSelectionMode] = useState<boolean>(false);
 
-      const [images, setImages] = useState<(ImageItem | null)[]>([])
-      const pathName = usePathname()?.split('/')[1];
+      const [progress, setProgress] = useState<SharingProgressProps>({ progress: 0, current: 0, total: 0 });
 
-      const { loading, backgroundFileSync } = useBackgroundSync();
-      const { headerAnimatedStyle, textAnimatedStyle, subTextAnimatedStyleAlt, scrollHandler } = useAnimatedStyleHook()
+      const { shareImages } = useSharing();
       
-      const [selected, setSelected] = useState<string[]>([])
+      const imageSyncRef = useImageSync();
+      useSelectionModeBackHandler(selectionMode, setSelectionMode, setSelected);
 
+      const searchParams = useLocalSearchParams();
+      const pathName = searchParams.folder as string;
+      const album_id = Number(searchParams.album_id);
+
+      const { headerAnimatedStyle, textAnimatedStyle, subTextAnimatedStyleAlt, scrollHandler } = useAnimatedStyleHook();
+
+      // ✅ Convert selected array to Set for O(1) lookup
+      const selectedSet = useMemo(() => new Set(selected), [selected]);
+
+      // ✅ Create stable extraData object
+      const extraData = useMemo(() => ({ 
+            selectedSet, 
+            selectionMode 
+      }), [selectedSet, selectionMode]);
+
+      // ✅ renderItem doesn't depend on selected anymore
+      const renderItem = useCallback(({ item, index }: { item: ImageProps, index: number }) => (
+            <ImageCardThumbnail
+                  index={index}
+                  item={item}
+                  selectedSet={selectedSet}
+                  selectionMode={selectionMode}
+            />
+      ), [selectedSet, selectionMode]);
+
+      const keyExtractor = useCallback((item: ImageProps) => item.id?.toString() || '', []);
+
+      const contentContainerStyle = useMemo(() => ({ gap: 1 }), []);
+      const columnWrapperStyle = useMemo(() => ({ gap: 1 }), []);
+                              
       useEffect(() => {
-            async function loadImages() {
-                  const images = await backgroundFileSync(pathName);
-                  const imgs = images?.filter(i => i !== null);
-                  if(imgs) setImages(imgs);
+            let isMounted = true;
+
+            async function fetchImages() {
+                  if (!imageSyncRef.current) {
+                        console.log('⚠️ ImageSync not ready yet');
+                        return;
+                  }
+
+                  try {
+                        setLoading(true);
+                        
+                        const imgs = Helpers.constructImagesArray(
+                              await imageSyncRef.current.getDbWithCache().getImages(album_id)
+                        );
+                        
+                        if (isMounted) {
+                              setImages(imgs);
+                        }
+                        
+                  } catch (error) {
+                        console.error('Error fetching images:', error);
+                  } finally {
+                        if (isMounted) {
+                              setLoading(false);
+                        }
+                  }
             }
 
-            loadImages()
-      }, [pathName, backgroundFileSync])
+            fetchImages();
 
-      const handleOnSelect = (uri: string) => {
-            const exists = selected.filter(item => item === uri);
-            if(!(exists.length > 0)){
-                  setSelected((prev) => [...prev, uri])
-            } else {
-                  setSelected((prev) => [...selected.filter(item => item !== uri)])
-            }
-      }
+            return () => {
+                  isMounted = false;
+            };
 
-      const shareTo = () => {
-            shareMultipleImages(selected);
+      }, [album_id, imageSyncRef]);
+
+      if (loading) {
+            return (
+                  <View className='flex flex-1 h-full w-full relative bg-black'>
+                        <View className="flex-1 items-center justify-center">
+                              <ActivityIndicator size="large" color="#3b82f6" />
+                        </View>
+                  </View>
+            );
       }
 
       return (
-            <View className='flex flex-1 h-full w-full relative bg-white'>
+            <View className='flex flex-1 h-full w-full relative bg-black'>
+                  {
+                        progress.progress > 0 &&
+                        <PrepareSharing progress={progress} onCancel={() => setProgress({progress: 0, current: 0, total: 0})} />
+                  }
+
                   <StickHeroNav
                         tabText={pathName}
+                        selectionMode={selectionMode}
                         no_items={images.length}
                         style={[headerAnimatedStyle, styles.header]}
                         textStyle={textAnimatedStyle}
                         subTextStyle={subTextAnimatedStyleAlt}
+                        setSelectionMode={setSelectionMode}
+                        sharePress={async () => {
+                              try {                                    
+                                    await TGMediaRepository.prepareSharing(
+                                          [...selectedSet],
+                                          setProgress,
+                                          setSelected,
+                                          setSelectionMode,
+                                          shareImages
+                                    );
+                              } catch (error) {
+                                    console.log(error);
+                              }
+                        }}
                   />
-                  {
-                        loading ? (
-                              <View className="flex-1 items-center justify-center bg-white">
-                                    <ActivityIndicator size="large" color="#3b82f6" />
-                              </View>
-                        ) : 
+                  <Galeria urls={images} theme='dark'>
                         <AnimatedFlatList
                               data={images}
-                              renderItem={({ item }) => <ImageCardThumbnail selected={selected} key={item.id} item={item} onSelect={handleOnSelect} />}
-                              keyExtractor={(item) => item.id as string}
+                              renderItem={renderItem}
+                              keyExtractor={keyExtractor}
                               numColumns={3}
-                              contentContainerStyle={{ paddingTop: HEADER_MAX_HEIGHT, gap: 1 }}
-                              columnWrapperStyle={{ gap: 1 }}
+                              contentContainerStyle={contentContainerStyle}
+                              columnWrapperStyle={columnWrapperStyle}
+                              // ✅ CRITICAL: Tell FlatList when to re-render
+                              extraData={extraData}
                               removeClippedSubviews={true}
                               showsVerticalScrollIndicator={false}
-                              maxToRenderPerBatch={10}
-                              updateCellsBatchingPeriod={50}
-                              initialNumToRender={15}
-                              windowSize={10}
+                              maxToRenderPerBatch={15}
+                              updateCellsBatchingPeriod={30}
+                              initialNumToRender={21}
+                              windowSize={5}
                               onScroll={scrollHandler}
                               scrollEventThrottle={16}
+                              getItemLayout={(data, index) => {
+                                    const ITEM_HEIGHT = 130;
+                                    const GAP = 1;
+                                    const rowIndex = Math.floor(index / 3);
+                                    return {
+                                          length: ITEM_HEIGHT,
+                                          offset: (ITEM_HEIGHT + GAP) * rowIndex,
+                                          index,
+                                    };
+                              }}
+                              ListHeaderComponent={<View style={{paddingTop: HEADER_MAX_HEIGHT}} />}
                         />
-                  }
-                  <Button title='Share' onPress={shareTo} />
+                  </Galeria>
             </View>
-      )
+      );
 }
+
 
 const styles = StyleSheet.create({
       header: {

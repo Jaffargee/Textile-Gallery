@@ -15,10 +15,7 @@ export async function shareMultipleImages(localUris: string[]) {
 
       try {
             // Sharing.shareAsync can accept an array of URIs starting from Expo SDK 43+
-            localUris.map(async (localUri) => {
-                  await Sharing.shareAsync(localUri as any);
-                  console.log(localUri)
-            })
+            // await Sharing.shareAsync(localUris[0] as any);
 
             const shareOptions = {
                   title: 'Share Images',

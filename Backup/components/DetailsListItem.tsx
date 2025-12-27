@@ -1,4 +1,5 @@
-import { ImageDirProps } from '@/Backup/hooks/image-service';
+import Cache from '@/lib/cache';
+import { AlbumProps, ImageProps } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
@@ -6,11 +7,14 @@ import { Text, View } from 'react-native';
 import MaterialRipple from 'react-native-material-ripple';
 
 interface DetailsListItemProps {
-      item: ImageDirProps
+      item: AlbumProps
 }
 
 const DetailsListItem = ({ item }: DetailsListItemProps) => {
       const router = useRouter();
+
+      const cache = Cache.getInstance();
+
       return (
             <View className='flex w-full relative h-[70px]'>
                   <MaterialRipple
@@ -19,7 +23,7 @@ const DetailsListItem = ({ item }: DetailsListItemProps) => {
                         rippleOpacity={60}
                         rippleSequential={false}
                         className='flex flex-1 w-full relative'
-                        onPress={() => router.push(`/upload/${item.dir_name}`)}
+                        onPress={() => router.push(`/upload/cloud-album?folder=${item.name}`)}
                         onLongPress={() => console.log("long press")}
                   >
                         <View className='flex flex-row flex-1 items-center justify-start w-full relative px-4 gap-2'>
@@ -37,11 +41,11 @@ const DetailsListItem = ({ item }: DetailsListItemProps) => {
                                     <View className='flex flex-1 w-full py-5'>
                                           <View className='flex flex-col w-full relative'>
                                                 <View>
-                                                      <Text>{item?.dir_name}</Text>
+                                                      <Text>{item?.name}</Text>
                                                 </View>
                                                 <View className='flex flex-row items-center justify-between w-full'>
                                                       <Text className='text-gray-400 text-sm'>7 Aug 5:27</Text>
-                                                      <Text className='text-gray-400 text-sm'>26 Items</Text>
+                                                      <Text className='text-gray-400 text-sm'>{cache.getData<ImageProps[]>(`cloud-${item.name}`)?.length} Items</Text>
                                                 </View>
                                           </View>
                                     </View>

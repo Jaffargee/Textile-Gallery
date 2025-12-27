@@ -25,7 +25,7 @@ const NavButton = ({icon, icon_size = 28, className, ...rest}: NavButtonProps & 
                   className={'rounded-full h-[42px] w-[42px] relative overflow-hidden'}
             >
                   <View className='flex flex-col items-center justify-center h-full w-full relative'>
-                        <Ionicons name={icon} size={icon_size} color={'black'} />
+                        <Ionicons name={icon} size={icon_size} color={'white'} />
                   </View>
             </MaterialRipple>
       )

@@ -1,0 +1,25 @@
+CODE EXECUTABLE FLOW & ORGANIZATION
+
+Image Props
+      - id
+      - cloud_id
+      - album_id
+      - dir_name
+      - name
+      - size
+      - source
+            - cloud_uri
+            - local_uri
+      - created_at
+
+Album Props
+      - id
+      - name
+      - size
+      - exists
+      - no_items
+      - source
+            - cloud_uri
+            - local_uri
+      - created_at
+

@@ -17,7 +17,7 @@ export default function useAnimatedStyleHook() {
       const headerAnimatedStyle = useAnimatedStyle(() => {
             const height = interpolate(
                   scrollY.value,
-                  [0, 100],
+                  [0, HEADER_SCROLL_DISTANCE],
                   [HEADER_MAX_HEIGHT, HEADER_MIN_HEIGHT],
                   Extrapolation.CLAMP
             );
@@ -28,14 +28,14 @@ export default function useAnimatedStyleHook() {
       const textAnimatedStyle = useAnimatedStyle(() => {
             const opacity = interpolate(
                   scrollY.value,
-                  [0, 100], // Disappears quickly
+                  [0, HEADER_SCROLL_DISTANCE], // Disappears quickly
                   [1, 0],
                   Extrapolation.CLAMP
             );
 
             const scale = interpolate(
                   scrollY.value,
-                  [0, 100],
+                  [0, HEADER_SCROLL_DISTANCE],
                   [1, 0.6],
                   Extrapolation.CLAMP
             );

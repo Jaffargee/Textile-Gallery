@@ -28,7 +28,6 @@ const ImageViewer = ({ images, imageIndex, visible, onClose = () => {} }: ImageV
             swipeToCloseEnabled={true}
             doubleTapToZoomEnabled={true}
             delayLongPress={800}
-            loadingColor='#006ee6'
             HeaderComponent={HeaderComponent}
             FooterComponent={FooterComponent}
         />

@@ -132,7 +132,7 @@ class ImageService {
 
             const bucketUrl = await this.getBucketUrl(bucketName);
 
-            const d = data.map((file) => {
+            return data.map((file) => {
 
 
                   const filePath = folder ? `${folder}/${file.name}` : file.name;
@@ -144,18 +144,12 @@ class ImageService {
                   return {
                         id: uniqueId,
                         name: file.name,
-                        title: file.name,
-                        url,
-                        uri: url,
-                        thumbnailUrl: thumbnailUri,
                         source: {
-                              url,
                               uri: url,
-                              thumbnailUrl: thumbnailUri
+                              thumbnailUri: thumbnailUri
                         }
-                  };
+                  } as ImageItem;
             });
-            return d;
       }
 
       /**
