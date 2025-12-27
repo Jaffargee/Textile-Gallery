@@ -244,14 +244,14 @@ Screenshots of the application UI are included in the repository to help develop
 
 > 📸 See the `/screenshots` directory in the repository.
 
-<img src="Screenshot_20251227_151807_Gallery.jpg" alt="Sample Image 1" height="800px" width="400px" />
-<img src="Screenshot_20251227_151820_Gallery.jpg" alt="Sample Image 2" />
-<img src="Screenshot_20251227_151827_Gallery.jpg" alt="Sample Image 3" />
-<img src="Screenshot_20251227_151836_Gallery.jpg" alt="Sample Image 4" />
-<img src="Screenshot_20251227_151840_Gallery.jpg" alt="Sample Image 5" />
-<img src="Screenshot_20251227_151844_Gallery.jpg" alt="Sample Image 6" />
-<img src="Screenshot_20251227_151916_Gallery.jpg" alt="Sample Image 7" />
-<img src="Screenshot_20251227_151923_Android System.jpg" alt="Sample Image 8" />
+<img src="Screenshot_20251227_151807_Gallery.jpg" alt="Sample Image 1" height="900px" width="400px" />
+<img src="Screenshot_20251227_151820_Gallery.jpg" alt="Sample Image 2" height="900px" width="400px" />
+<img src="Screenshot_20251227_151827_Gallery.jpg" alt="Sample Image 3" height="900px" width="400px" />
+<img src="Screenshot_20251227_151836_Gallery.jpg" alt="Sample Image 4" height="900px" width="400px" />
+<img src="Screenshot_20251227_151840_Gallery.jpg" alt="Sample Image 5" height="900px" width="400px" />
+<img src="Screenshot_20251227_151844_Gallery.jpg" alt="Sample Image 6" height="900px" width="400px" />
+<img src="Screenshot_20251227_151916_Gallery.jpg" alt="Sample Image 7" height="900px" width="400px" />
+<img src="Screenshot_20251227_151923_Android System.jpg" alt="Sample Image 8" height="900px" width="400px" />
 ---
 
 ## Suggested Improvements
